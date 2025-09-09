@@ -18,9 +18,9 @@ Servo servo3;
 
 #define RXD2 44
 #define TXD2 43
-int angle1 = 0;
-int angle2 = 0;  
-int angle3 = 0;  
+int angle1 = 45;
+int angle2 = 110;  
+int angle3 = 145;  
 int angle4 = 0;          // Góc ban đầu
 int stepAngle = 5;       // Bước tăng/giảm góc
 
@@ -175,7 +175,7 @@ void updateServo(Servo &servo, bool &running, bool &directionUp, int &angle) {
   }
 }
 void set_default_arm (){
-  control_arm(45,45,45);
+  control_arm(45,110,145);
 }
 
 // =================== Motor control ===================
