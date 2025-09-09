@@ -6,7 +6,7 @@
 // =================== WiFi & MQTT ===================
 const char* ssid = "Trung Tam TT-TV";
 const char* password = "12345679";
-const char* mqtt_server = "192.168.22.44"; // IP broker (Node-RED/Mosquitto)
+const char* mqtt_server = "192.168.22.194"; // IP broker (Node-RED/Mosquitto)
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -232,7 +232,8 @@ void mqttCallback(char* topic, byte* message, unsigned int length) {
 
   if (String(topic) == "robot/cmd") {
     if (msg.length() > 0) {
-      handleCommand_Motor(msg[0]);  // nhận ký tự đầu tiên như 'T','J','P','F',...
+      handleCommand_Motor(msg[0]); 
+      handleCommand_Arm(msg[0]) ;// nhận ký tự đầu tiên như 'T','J','P','F',...
     }
   }
 }
@@ -255,16 +256,27 @@ void reconnect() {
 // =================== SETUP ===================
 void setup(){
   Serial.begin(115200);
+  delay(1000);
+  WiFi.mode(WIFI_STA);
   //Serial2.begin(115200);
   // WiFi
+  Serial.print("Đang kết nối tới WiFi... ");
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.print("\nWiFi connected, IP: ");
-  Serial.println(WiFi.localIP());
+  unsigned long startAttemptTime = millis();
 
+  // Chờ kết nối, timeout sau 10 giây
+  while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
+    Serial.print(".");
+    delay(500);
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\n✅ Kết nối thành công!");
+    Serial.print("Địa chỉ IP: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\n❌ Kết nối thất bại, kiểm tra SSID/Password hoặc WiFi 2.4GHz!");
+  }
   // MQTT
   client.setServer(mqtt_server, 1883);
   client.setCallback(mqttCallback);
@@ -275,7 +287,7 @@ void setup(){
   servo3.attach(37);
   setServoAngle1(angle1, 1);
   setServoAngle1(angle2, 2);
-  setServoAngle1(angle2, 2);
+  setServoAngle1(angle3, 3);
 
   // Motor pins
   pinMode(IN1_1, OUTPUT); pinMode(IN2_1, OUTPUT);
@@ -294,6 +306,13 @@ void setup(){
 
 // =================== LOOP ===================
 void loop() {
+  // Nếu mất kết nối thì tự thử lại
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("Mất kết nối WiFi, thử lại...");
+    WiFi.reconnect();
+    delay(5000);
+  }
+  
   if (!client.connected()) {
     reconnect();
   }
