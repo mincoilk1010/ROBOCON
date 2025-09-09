@@ -58,7 +58,7 @@ void setServoAngle1(int a, int b) {
   if (a > 180) a = 180;
   switch(b){
     case 1:
-        angle1 = a;
+      angle1 = a;
       servo1.write(angle1);
       break;  
     case 2:
@@ -110,6 +110,7 @@ void controlServo01(char cmd){
       break;
     default: break;
 }
+}
 void controlServo02(char cmd){
   switch(cmd){
     // Servo1 control
@@ -125,6 +126,7 @@ void controlServo02(char cmd){
       servo1Running = false;
       break;
     default: break;
+}
 }
 void controlServo03(char cmd){
   switch(cmd){
@@ -142,21 +144,21 @@ void controlServo03(char cmd){
       break;
     default: break;
 }
-
+}
 void handleCommand_Arm(char cmd){
   controlServo01(cmd);
   controlServo02(cmd);
   controlServo03(cmd);
 }
-void set_arm_servo(char cmd){
-  if ()
-}
+// void set_arm_servo(char cmd){
+//   if ()
+// }
 void control_arm (int angle1,int angle2, int angle3){
-    servo1.write(pos);              // tell servo to go to position in variable 'pos'
+    servo1.write(angle1);              // tell servo to go to position in variable 'pos'
     delay(500);
-    servo2.write(pos);              // tell servo to go to position in variable 'pos'
+    servo2.write(angle2);              // tell servo to go to position in variable 'pos'
     delay(500);
-    servo3.write(pos);              // tell servo to go to position in variable 'pos'
+    servo3.write(angle3);              // tell servo to go to position in variable 'pos'
     delay(500);
 }
 void updateServo(Servo &servo, bool &running, bool &directionUp, int &angle) {
@@ -204,7 +206,7 @@ void banhMecanum(int sp_truoc_phai, int sp_truoc_trai, int sp_sau_phai, int sp_s
 
 // =================== Command handler ===================
 void handleCommand_Motor(char cmd) {
-
+    switch(cmd){
     // Các lệnh khác giữ nguyên
     case 'F': banhMecanum(SPEED_THUAN, SPEED_THUAN, SPEED_THUAN, SPEED_THUAN); break;
     case 'B': banhMecanum(SPEED_DAO, SPEED_DAO, SPEED_DAO, SPEED_DAO); break;
@@ -272,6 +274,8 @@ void setup(){
   servo2.attach(36);
   servo3.attach(37);
   setServoAngle1(angle1, 1);
+  setServoAngle1(angle2, 2);
+  setServoAngle1(angle2, 2);
 
   // Motor pins
   pinMode(IN1_1, OUTPUT); pinMode(IN2_1, OUTPUT);
@@ -280,10 +284,10 @@ void setup(){
   pinMode(IN3_2, OUTPUT); pinMode(IN4_2, OUTPUT);
 
   // PWM setup
-  ledcAttachPin(ENA1, 1000);
-  ledcAttachPin(ENB1, 1000);
-  ledcAttachPin(ENA2, 1000);
-  ledcAttachPin(ENB2, 1000);
+  ledcAttach(ENA1, 1000, 8);
+  ledcAttach(ENB1, 1000, 8);
+  ledcAttach(ENA2, 1000, 8);
+  ledcAttach(ENB2, 1000, 8);
 
   banhMecanum(0, 0, 0, 0);
 }
