@@ -11,21 +11,20 @@ const char* mqtt_server = "192.168.22.44"; // IP broker (Node-RED/Mosquitto)
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-// =================== Servo ===================
+// ===================Define Servo ===================
 Servo servo1;
 Servo servo2;
 Servo servo3;
 
 #define RXD2 44
 #define TXD2 43
-
 int angle1 = 0;
 int angle2 = 0;  
 int angle3 = 0;  
 int angle4 = 0;          // Góc ban đầu
 int stepAngle = 5;       // Bước tăng/giảm góc
 
-// =================== Motor ===================
+// ===================Define Motor PIN ===================
 #define ENA1 12 // truoc trái
 #define IN1_1 13
 #define IN2_1 14
@@ -95,6 +94,88 @@ void servoDown(int a) {
   }
 }
 
+void controlServo01(char cmd){
+  switch(cmd){
+    // Servo1 control
+    case 'T': // Bắt đầu quay lên
+      servo1Running = true;
+      servo1DirectionUp = true;
+      break;
+    case 'J': // Bắt đầu quay xuống
+      servo1Running = true;
+      servo1DirectionUp = false;
+      break;
+    case 'P': // Dừng servo
+      servo1Running = false;
+      break;
+    default: break;
+}
+void controlServo02(char cmd){
+  switch(cmd){
+    // Servo1 control
+    case 'Z': // Bắt đầu quay lên
+      servo1Running = true;
+      servo1DirectionUp = true;
+      break;
+    case 'X': // Bắt đầu quay xuống
+      servo1Running = true;
+      servo1DirectionUp = false;
+      break;
+    case 'C': // Dừng servo
+      servo1Running = false;
+      break;
+    default: break;
+}
+void controlServo03(char cmd){
+  switch(cmd){
+    // Servo1 control
+    case 'V': // Bắt đầu quay lên
+      servo1Running = true;
+      servo1DirectionUp = true;
+      break;
+    case 'N': // Bắt đầu quay xuống
+      servo1Running = true;
+      servo1DirectionUp = false;
+      break;
+    case 'M': // Dừng servo
+      servo1Running = false;
+      break;
+    default: break;
+}
+
+void handleCommand_Arm(char cmd){
+  controlServo01(cmd);
+  controlServo02(cmd);
+  controlServo03(cmd);
+}
+void set_arm_servo(char cmd){
+  if ()
+}
+void control_arm (int angle1,int angle2, int angle3){
+    servo1.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(500);
+    servo2.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(500);
+    servo3.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(500);
+}
+void updateServo(Servo &servo, bool &running, bool &directionUp, int &angle) {
+  if (running) {
+    if (directionUp) {
+      angle += stepAngle;
+      if (angle > 180) angle = 180;
+    } else {
+      angle -= stepAngle;
+      if (angle < 0) angle = 0;
+    }
+    servo.write(angle);
+    delay(50); // tốc độ quay
+  }
+}
+void set_default_arm (){
+  control_arm(45,45,45);
+}
+
 // =================== Motor control ===================
 void setMotor(int kenhpwm, int in1, int in2, int speed) {
   speed = constrain(speed, -255, 255);
@@ -120,77 +201,7 @@ void banhMecanum(int sp_truoc_phai, int sp_truoc_trai, int sp_sau_phai, int sp_s
   setMotor(ENB2, IN3_2, IN4_2, sp_sau_phai);
 }
 
-void controlServo01(char cmd){
-  switch(cmd){
-    // Servo1 control
-    case 'T': // Bắt đầu quay lên
-      servo1Running = true;
-      servo1DirectionUp = true;
-      break;
-    case 'J': // Bắt đầu quay xuống
-      servo1Running = true;
-      servo1DirectionUp = false;
-      break;
-    case 'S': // Dừng servo
-      servo1Running = false;
-      break;
-    default: break;
-}
-}
-void controlServo02(char cmd){
-  switch(cmd){
-    // Servo1 control
-    case 'Z': // Bắt đầu quay lên
-      servo1Running = true;
-      servo1DirectionUp = true;
-      break;
-    case 'X': // Bắt đầu quay xuống
-      servo1Running = true;
-      servo1DirectionUp = false;
-      break;
-    case 'C': // Dừng servo
-      servo1Running = false;
-      break;
-    default: break;
-}
-}
-void controlServo03(char cmd){
-  switch(cmd){
-    // Servo1 control
-    case 'V': // Bắt đầu quay lên
-      servo1Running = true;
-      servo1DirectionUp = true;
-      break;
-    case 'N': // Bắt đầu quay xuống
-      servo1Running = true;
-      servo1DirectionUp = false;
-      break;
-    case 'M': // Dừng servo
-      servo1Running = false;
-      break;
-    default: break;
-}
-}
-void handleCommand_Arm(char cmd){
-  controlServo01(cmd);
-  controlServo02(cmd);
-  controlServo03(cmd);
-}
-void set_arm_servo(char cmd){
-  if ()
-}
-void control_arm (int angle1,int angle2, int angle3){
-    servo1.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(500);
-    servo2.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(500);
-    servo3.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(500);
-}
 
-void set_default_arm (){
-  control_arm(45,45,45);
-}
 // =================== Command handler ===================
 void handleCommand_Motor(char cmd) {
 
@@ -201,11 +212,12 @@ void handleCommand_Motor(char cmd) {
     case 'R': banhMecanum(SPEED_DAO, SPEED_THUAN, SPEED_DAO, SPEED_THUAN); break;
     case 'G': banhMecanum(SPEED_DAO, SPEED_DAO, SPEED_THUAN, SPEED_THUAN); break;
     case 'H': banhMecanum(SPEED_THUAN, SPEED_THUAN, SPEED_DAO, SPEED_DAO); break;
+    case 'S': banhMecanum(0,0,0,0); break;
     default:
       Serial.println("Unknown command");
       break;
   }
-
+}
 
 
 // =================== MQTT callback ===================
@@ -277,7 +289,7 @@ void setup(){
 }
 
 // =================== LOOP ===================
-void loop(){
+void loop() {
   if (!client.connected()) {
     reconnect();
   }
@@ -287,19 +299,11 @@ void loop(){
   if (Serial2.available()) {      
     char cmd = Serial2.read();
     handleCommand_Motor(cmd);    
-    handleCommand_Servo(cmd);     
+    handleCommand_Arm(cmd);   // đổi tên cho rõ hơn (gồm cả servo1-3)
   }
-  if (servo1Running) {
 
-  if (servo1DirectionUp) {
-    angle1 += stepAngle;
-    if (angle1 > 180) angle1 = 180;
-  } else {
-    angle1 -= stepAngle;
-    if (angle1 < 0) angle1 = 0;
-  }
-  servo1.write(angle1);
-  delay(50); // tốc độ quay
-}
-
+  // Cập nhật cả 3 servo
+  updateServo(servo1, servo1Running, servo1DirectionUp, angle1);
+  updateServo(servo2, servo2Running, servo2DirectionUp, angle2);
+  updateServo(servo3, servo3Running, servo3DirectionUp, angle3);
 }
