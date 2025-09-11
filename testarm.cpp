@@ -10,14 +10,6 @@ int angle2 = 110;
 int angle3 = 145;       // Góc ban đầu
 int stepAngle = 5;       // Bước tăng/giảm góc
 
-// =================== Trạng thái servo ===================
-bool servo1Running = false;
-bool servo1DirectionUp = true;
-bool servo2Running = false;
-bool servo2DirectionUp = true;
-bool servo3Running = false;
-bool servo3DirectionUp = true;
-
 // =================== Hàm điều khiển ===================
 void setServoAngle(int a, int id) {
   if (a < 0) a = 0;
@@ -57,15 +49,7 @@ void handleCommand_Arm(char cmd){
   }
 }
 
-// =================== Hàm cao cấp ===================
-void control_arm (int a1,int a2, int a3){
-    setServoAngle(a1,1);
-    delay(300);
-    setServoAngle(a2,2);
-    delay(300);
-    setServoAngle(a3,3);
-    delay(300);
-}
+// =================== Hàm cao cấp ==================
 
 void updateServo(Servo &servo, bool &running, bool &directionUp, int &angle) {
   if (running) {
@@ -79,7 +63,12 @@ void updateServo(Servo &servo, bool &running, bool &directionUp, int &angle) {
 }
 
 void set_default_arm (){
-  control_arm(0,110,145);
+  control_angle_servo(1, 0);
+  delay(200);
+  control_angle_servo(2, 110);
+  delay(200);
+  control_angle_servo(1, 145);
+  delay(200);
 }
 
 void control_angle_servo(int servoID, int target){
@@ -133,7 +122,4 @@ void loop() {
     char cmd = Serial.read();    
     handleCommand_Arm(cmd);
   }
-  updateServo(servo1, servo1Running, servo1DirectionUp, angle1);
-  updateServo(servo2, servo2Running, servo2DirectionUp, angle2);
-  updateServo(servo3, servo3Running, servo3DirectionUp, angle3);
 }
